@@ -1,0 +1,259 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            li {
+                width: 100%;
+                text-align: right;
+            }
+
+            li span {
+                display: block;
+            }
+
+            li span.engineStarted {
+                animation-name: broom;
+                animation-duration: 1s;
+                animation-iteration-count: infinite;
+            }
+
+            li span.engineStarted::after {
+                content: "‍💨";
+            }
+
+            @keyframes broom {
+                0% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(2px);
+                }
+                100% {
+                    transform: translateY(0);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <ul id="lanes"></ul>
+    </body>
+    <script>
+        class Car {
+            constructor(owner, ico) {
+                this.ico = ico;
+                this.fuel = 0;
+                this.kms = 0;
+                this.owner = owner;
+                this.hasDoorsOpen = false;
+                this.hasTrunkOpen = false;
+                this.hasEngineStarted = false;
+            }
+
+            refuel() {
+                if (!this.hasEngineStarted) {
+                    if (this.fuel + 25 <= 100) {
+                        this.fuel += 25;
+                        redraw();
+                    } else {
+                        alert("El tanque está lleno");
+                    }
+                } else {
+                    alert("El coche aún está en marcha");
+                }
+            }
+
+            startEngine() {
+                if (!this.hasTrunkOpen) {
+                    this.hasEngineStarted = true;
+                    redraw();
+                } else {
+                    alert("tienes el maletero abierto");
+                }
+            }
+
+            stopEngine() {
+                if (this.kms == 0) {
+                    this.hasEngineStarted = false;
+                    redraw();
+                } else {
+                    alert("Cuidao que tienes el coche en marcha");
+                }
+            }
+
+            openDoors() {
+                if (this.kms == 0) {
+                    this.hasDoorsOpen = true;
+                    redraw();
+                } else {
+                    alert("Cuidadoooo tienes el coche en marcha");
+                }
+            }
+
+            closeDoors() {
+                this.hasDoorsOpen = false;
+                redraw();
+            }
+
+            accelerate(speed, index) {
+                if (
+                    this.hasEngineStarted &&
+                    this.kms + speed >= 0 &&
+                    this.kms + speed <= 120
+                ) {
+                    this.kms += speed;
+                    this.fuel -= 10;
+                    redraw();
+                    var carItem = (document.querySelectorAll("li span")[
+                        index
+                    ].style.paddingRight = this.kms + "px");
+                    console.log(carItem);
+                }
+            }
+
+            openTrunk() {
+                if (!this.hasEngineStarted) {
+                    this.hasTrunkOpen = true;
+                    redraw();
+                } else {
+                    alert("No puedes abrir el maletero con el coche en marcha");
+                }
+            }
+
+            closeTrunk() {
+                this.hasTrunkOpen = false;
+                redraw();
+            }
+        }
+
+        cars = [];
+
+        cars[0] = new Car("Jordi", "🚗");
+        cars[1] = new Car("Marta", "🚙");
+        cars[2] = new Car("Judith", "🚑");
+        cars[3] = new Car("Judith", "🏎️");
+        cars[4] = new Car("Judith", "🏎️");
+        cars[5] = new Car("Judith", "🏎️");
+        cars[6] = new Car("Judith", "🏎️");
+
+        console.log("cars", cars);
+
+        const lanes = document.getElementById("lanes");
+
+        function redraw() {
+            lanes.innerHTML = "";
+            cars.forEach((car, index) => {
+                var lane = document.createElement("li");
+
+                var engineStatus = car.hasEngineStarted == false ? "🔴" : "🟢";
+                var doorStatus = car.hasDoorsOpen == true ? "opened" : "closed";
+                var trunkStatus =
+                    car.hasTrunkOpen == true ? "opened" : "closed";
+                var carSpan =
+                    car.hasEngineStarted == false
+                        ? "<span>"
+                        : "<span class='engineStarted'>";
+
+                lane.innerHTML =
+                    carSpan +
+                    car.ico +
+                    "</span> " +
+                    engineStatus +
+                    " Fuel: " +
+                    car.fuel +
+                    "% Kms/h: " +
+                    car.kms +
+                    " 🚪" +
+                    doorStatus +
+                    " trunk:" +
+                    trunkStatus +
+                    " ";
+
+                // REFUEL BUTTON
+                const refuelButton = document.createElement("button");
+                refuelButton.innerText = "Refuel";
+                refuelButton.addEventListener("click", function () {
+                    cars[index].refuel();
+                });
+                lane.append(refuelButton);
+
+                // START ENGINE BUTTON
+                const startEngineButton = document.createElement("button");
+                startEngineButton.innerText = "Start";
+                startEngineButton.addEventListener("click", function () {
+                    cars[index].startEngine();
+                });
+                lane.append(startEngineButton);
+
+                // STOP ENGINE BUTTON
+                const stopEngineButton = document.createElement("button");
+                stopEngineButton.innerText = "stop";
+                stopEngineButton.addEventListener("click", function () {
+                    cars[index].stopEngine();
+                });
+                lane.append(stopEngineButton);
+
+                // OPEN DOORS BUTTON
+                const openDoorsButton = document.createElement("button");
+                openDoorsButton.innerText = "Open Doors";
+                openDoorsButton.addEventListener("click", function () {
+                    cars[index].openDoors();
+                });
+                lane.append(openDoorsButton);
+
+                // CLOSE DOORS BUTTON
+                const closeDoorsButton = document.createElement("button");
+                closeDoorsButton.innerText = "close Doors";
+                closeDoorsButton.addEventListener("click", function () {
+                    cars[index].closeDoors();
+                });
+                lane.append(closeDoorsButton);
+
+                // ACCELERATE BUTTON
+                const accelerate20Button = document.createElement("button");
+                accelerate20Button.innerText = "Accelerate20";
+                accelerate20Button.addEventListener("click", function () {
+                    cars[index].accelerate(20, index);
+                });
+                lane.append(accelerate20Button);
+
+                // ACCELERATE BUTTON
+                const accelerate40Button = document.createElement("button");
+                accelerate40Button.innerText = "Accelerate40";
+                accelerate40Button.addEventListener("click", function () {
+                    cars[index].accelerate(40, index);
+                });
+                lane.append(accelerate40Button);
+
+                // DECELERATE BUTTON
+                const decelerateButton = document.createElement("button");
+                decelerateButton.innerText = "decelerate";
+                decelerateButton.addEventListener("click", function () {
+                    cars[index].accelerate(-20, index);
+                });
+                lane.append(decelerateButton);
+
+                // OPEN TRUNK BUTTON
+                const openTrunkButton = document.createElement("button");
+                openTrunkButton.innerText = "Open Trunk";
+                openTrunkButton.addEventListener("click", function () {
+                    cars[index].openTrunk();
+                });
+                lane.append(openTrunkButton);
+
+                // CLOSE TRUNK BUTTON
+                const closeTrunkButton = document.createElement("button");
+                closeTrunkButton.innerText = "Close Trunk";
+                closeTrunkButton.addEventListener("click", function () {
+                    cars[index].closeTrunk();
+                });
+                lane.append(closeTrunkButton);
+
+                lanes.append(lane);
+            });
+        }
+
+        redraw();
+    </script>
+</html>
